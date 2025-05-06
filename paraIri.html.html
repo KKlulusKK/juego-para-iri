@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Este es uno de muchos juegos para vos <3</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #fce4ec;
+      position: relative;
+    }
+
+    .cat-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .cat {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      animation: dance 1s infinite alternate ease-in-out;
+      opacity: 0.5;
+    }
+
+    @keyframes dance {
+      0% { transform: translateY(0px) rotate(0deg); }
+      100% { transform: translateY(-10px) rotate(5deg); }
+    }
+
+    .content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 20px;
+      color: #6a1b9a;
+    }
+
+    h1 {
+      color: #ff4081;
+      font-size: 20px;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 10px;
+    }
+
+    #gameBoard {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 10px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .colorButton {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .buttonRed { background-color: #f48fb1; }
+    .buttonPink { background-color: #f8bbd0; }
+    .buttonPurple { background-color: #9575cd; }
+    .buttonLavender { background-color: #b39ddb; }
+
+    .active {
+      transform: scale(1.2);
+      filter: brightness(130%);
+      box-shadow: 0 0 10px #fff;
+    }
+
+    #message {
+      font-size: 16px;
+      font-weight: bold;
+      margin-top: 15px;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+
+    #score {
+      font-size: 14px;
+      color: #ff4081;
+      margin-top: 5px;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+
+    #startButton {
+      margin-top: 20px;
+      padding: 6px 12px;
+      background-color: #ff4081;
+      color: white;
+      font-size: 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #startButton:hover {
+      background-color: #d81b60;
+    }
+
+    /* Estilo para el gif que aparece durante el juego */
+    #gameGif {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('https://imgur.com/2lGMIul.gif');
+      background-size: cover;
+      background-position: center;
+      z-index: 1;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Gif visible durante el juego -->
+  <div id="gameGif"></div>
+
+  <!-- Fondo de gatitos antes de iniciar -->
+  <div class="cat-background" id="catBackground"></div>
+
+  <!-- Juego principal -->
+  <div class="content">
+    <h1>Este es uno de muchos juegos para vos &lt;3</h1>
+
+    <div id="gameBoard">
+      <div id="red" class="colorButton buttonRed"></div>
+      <div id="pink" class="colorButton buttonPink"></div>
+      <div id="purple" class="colorButton buttonPurple"></div>
+      <div id="lavender" class="colorButton buttonLavender"></div>
+    </div>
+
+    <div id="message">Oli Iri &lt;3, ¡dale dale vos podés! 💪😡</div>
+    <div id="score">Puntaje: 0</div>
+    <br>
+    <button id="startButton">Comenzar</button>
+  </div>
+
+  <script>
+    const colors = ['red', 'pink', 'purple', 'lavender'];
+    const colorButtons = {
+      red: document.getElementById('red'),
+      pink: document.getElementById('pink'),
+      purple: document.getElementById('purple'),
+      lavender: document.getElementById('lavender')
+    };
+
+    const startButton = document.getElementById('startButton');
+    const message = document.getElementById('message');
+    const scoreDisplay = document.getElementById('score');
+    const gameGif = document.getElementById('gameGif');
+    const catBackground = document.getElementById('catBackground');
+
+    let sequence = [];
+    let userInput = [];
+    let score = 0;
+    let gameStarted = false;
+
+    function generateSequence() {
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      sequence.push(randomColor);
+      setTimeout(displaySequence, 800);
+    }
+
+    function displaySequence() {
+      let i = 0;
+      const interval = setInterval(() => {
+        const color = sequence[i];
+        highlightButton(color);
+        i++;
+        if (i >= sequence.length) {
+          clearInterval(interval);
+          setTimeout(() => {
+            gameStarted = true;
+            userInput = [];
+            message.textContent = "Tu turno, ¡repite la secuencia! 💖";
+          }, 800);
+        }
+      }, 1000);
+    }
+
+    function highlightButton(color) {
+      const button = colorButtons[color];
+      button.classList.add('active');
+      setTimeout(() => {
+        button.classList.remove('active');
+      }, 400);
+    }
+
+    function handleColorClick(color) {
+      if (!gameStarted) return;
+      highlightButton(color);
+      userInput.push(color);
+      checkUserInput();
+    }
+
+    function checkUserInput() {
+      const currentIndex = userInput.length - 1;
+      if (userInput[currentIndex] !== sequence[currentIndex]) {
+        message.textContent = "¡Oh no, cometiste un error! 😔 Intenta de nuevo.";
+        resetGame();
+      } else if (userInput.length === sequence.length) {
+        score++;
+        scoreDisplay.textContent = `Puntaje: ${score}`;
+        userInput = [];
+        setTimeout(generateSequence, 1000);
+      }
+    }
+
+    function resetGame() {
+      gameStarted = false;
+      sequence = [];
+      userInput = [];
+      setTimeout(() => {
+        // Mostrar los gatitos de nuevo y esconder gif de juego
+        gameGif.style.display = "none";
+        catBackground.style.display = "block";
+        startButton.style.display = "inline-block";
+
+        message.textContent = "Oli Iri <3, ¡dale dale vos podés! 💪😡";
+        scoreDisplay.textContent = "Puntaje: 0";
+      }, 1500);
+    }
+
+    startButton.addEventListener('click', () => {
+      // Preparar la interfaz para jugar
+      startButton.style.display = "none";
+      catBackground.style.display = "none";
+      gameGif.style.display = "block";
+      score = 0;
+      sequence = [];
+      userInput = [];
+      scoreDisplay.textContent = `Puntaje: ${score}`;
+      message.textContent = "¡Vamos, repite la secuencia! 💖";
+
+      setTimeout(() => {
+        generateSequence();
+      }, 1000);
+    });
+
+    colors.forEach(color => {
+      colorButtons[color].addEventListener('click', () => handleColorClick(color));
+    });
+
+    // Crear 80 gatitos de fondo
+    const catGifURL = "https://imgur.com/ZAEJrB9.gif";
+    for (let i = 0; i < 80; i++) {
+      const cat = document.createElement("img");
+      cat.src = catGifURL;
+      cat.className = "cat";
+      cat.style.left = Math.random() * 100 + "%";
+      cat.style.top = Math.random() * 100 + "%";
+      cat.style.animationDuration = (Math.random() * 1 + 1) + "s";
+      catBackground.appendChild(cat);
+    }
+  </script>
+
+</body>
+</html>
+
+
